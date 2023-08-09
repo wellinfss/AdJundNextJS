@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Membro{
+  id Int @id @default(autoincrement())
+  nome String  @db.VarChar(255) @map("NomeMembro")
+  idade Int @db.Integer @map("Idade")
+  email String @db.VarChar(255) @map("Email") @unique
+  nomePai String @db.VarChar(255) @map("NomePai")
+  nomeMae String @db.VarChar(255) @map("NomeMae")
+  cpf String @db.VarChar(14) @map("Cpf")
+  rg String @db.VarChar(14) @map("Rg")
+  sexo String @db.VarChar(1) @map("Sexo")
+  dataNascimento DateTime @db.Date @map("DataNascimento")
+  cidadeNascimento String @db.VarChar(255) @map("CidadeNascimento")
+  DataBatismo DateTime @db.Date @map("DataBatismo")
+  funcaoId Int 
+  funcoes FuncaoMembro? @relation(fields: [funcaoId], references: [id])
+  telefoneMembroId Int 
+  telefonesMembro MembroTelefone?  @relation(fields: [telefoneMembroId], references: [id])
+  enderecoId Int
+  endereco MembroEndereco?  @relation(fields: [enderecoId], references: [id])
+  veiculoId Int
+  veiculo Veiculo?  @relation(fields: [veiculoId], references: [id])
+  MembroPredioId Int
+  MembroPredio MembroPredio?  @relation(fields: [MembroPredioId], references: [id])
+  pictureId Int
+  imagemPessao ImagemPessao  @relation(fields: [pictureId], references: [id]) 
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime
+  deletedAt DateTime
+  @@index([cpf], map: "IDX_Cpf_Membro")
+  @@index([nome],map: "IDX_NomeMembro")
+}
+
+model ImagemPessao{
+  id Int @id @default(autoincrement())
+  url String @db.VarChar(255)
+  MembroId Int
+  Membro Membro[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+}
+
+ model FuncaoMembro{
+  id Int @id @default(autoincrement())
+  MembroId Int
+  Membro Membro [] 
+  FuncaoId Int
+  inicioVigencia DateTime @map("InicioVigencia")
+  fimVigencia DateTime @map("FimVigencia")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+  @@index([MembroId], map: "idx_funcao_Membro")
+ }
+
+ model FuncaoMembroPredio{
+  id Int @id @default(autoincrement())
+  FuncaoMembroId Int
+  PredioId Int
+  inicioVigencia DateTime @map("InicioVigencia")
+  fimVigencia DateTime @map("FimVigencia")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+ }
+
+model MembroEndereco{
+  id Int @id @default(autoincrement())
+  rua String @db.VarChar(350) @map("Rua")
+  numero Int @db.Integer @map("Numero")
+  complemento String @db.VarChar(350) @map("Complemento")
+  cidadeId Int 
+  paisId String 
+  MembroId Int
+  Membro Membro[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+}
+
+ model MembroPredio{
+  id Int @id @default(autoincrement())
+  MembroId String
+  predioId Int
+  Membros Membro []
+  inicioVigencia DateTime
+  fimVigencia DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+ }
+
+model MembroTelefone{
+  id Int @id @default(autoincrement())
+  CodPais String @db.VarChar(2) @map("CodigoPais")
+  ddd Int  @db.Integer @map("DDD")
+  numero String @db.VarChar(9) @map("Numero")
+  tipo String @db.VarChar(1) @map("Tipo")
+  MembroId Int
+  Membro Membro[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+}
+
+model Veiculo{
+  id Int @id @default(autoincrement())
+  placa String @db.VarChar(7) @map("Placa")
+  marca String @db.VarChar(50) @map("Marca")
+  modelo String @db.VarChar(50) @map("Modelo")
+  MembroId Int?
+  Membro Membro []
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+  @@index([placa], map: "IDX_Placa_Veiculo")
+  @@index([marca], map: "IDX_Marca_Veiculo")
+  @@index([modelo], map: "IDX_Modelo_Veiculo")
+}
+
+ model Predio{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(255) @map("NomePredio")
+  Telefone String @db.VarChar(255) @map("Telefone")
+  enderecoPredioId Int
+  endereco EnderecoPredio  @relation(fields: [enderecoPredioId], references: [id])
+  inicioVigencia DateTime @map("InicioVigencia")  
+  fimVigencia DateTime @map("FimVigencia")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+ }
+
+ model EnderecoPredio {
+  id Int @id @default(autoincrement())
+  rua String @db.VarChar(255) @map("Rua")
+  numero Int  @db.Integer @map("Numero")
+  complemento String @db.VarChar(255) @map("Complemento")
+  cidadeId String
+  paisId String
+  predioId Int
+  predios Predio []
+  inicioVigencia DateTime
+  fimVigencia DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+ }
+
+model Funcao{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(255) @map("NomeFuncao")
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  deletedAt DateTime
+ }
+
+model Cidade{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(255) @map("NomeCidade")
+  estadoId Int
+  estado Estado[]
+}
+
+model Estado{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(255) @map("NomeEstado")
+  cidades Cidade[]
+}
+
+model Pais{
+  id Int @id @default(autoincrement())
+  nome String @db.VarChar(255) @map("NomePais")
+}
